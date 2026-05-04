@@ -8,4 +8,8 @@ Route::get('/', function () {
 });
 
 Route::get('/subscribe/{user}', [SubscriptionController::class, 'create']);
-Route::get('/subscriptions/{user}', [SubscriptionController::class, 'list']);
+Route::get('/subscriptions/{user}', [SubscriptionController::class, 'list']);   
+
+Route::get('/feature-check/{user}', [SubscriptionController::class, 'checkFeature']);
+
+Route::get('/cancel/{user}', [SubscriptionController::class, 'cancel']);
