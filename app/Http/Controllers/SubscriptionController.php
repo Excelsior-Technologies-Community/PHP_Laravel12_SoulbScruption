@@ -9,7 +9,6 @@ use LucasDotVin\Soulbscription\Models\Feature;
 
 class SubscriptionController extends Controller
 {
-    // Create a subscription for a user
     public function create(User $user)
     {
         $plan = Plan::firstOrCreate([
@@ -18,7 +17,6 @@ class SubscriptionController extends Controller
             'interval' => 'month',
         ]);
 
-        // Attach feature to plan (IMPORTANT)
         $feature = Feature::firstOrCreate([
             'name' => 'deploy_minutes'
         ], [
@@ -26,12 +24,10 @@ class SubscriptionController extends Controller
             'value' => 120
         ]);
 
-        // Attach feature to plan with value
         $plan->features()->syncWithoutDetaching([
             $feature->id => ['value' => 120]
         ]);
 
-        // Subscribe user
         $user->subscribeTo($plan);
 
         return response()->json([
@@ -41,7 +37,6 @@ class SubscriptionController extends Controller
         ]);
     }
 
-    // List user subscriptions
     public function list(User $user)
     {
         $subscription = $user->subscription;
@@ -52,31 +47,11 @@ class SubscriptionController extends Controller
         ]);
     }
 
-    // FEATURE CHECK
     public function checkFeature(User $user)
     {
         $featureName = 'deploy_minutes';
 
-        // Correct way to get subscription
-        $subscription = $user->subscription;
-
-        if (!$subscription) {
-            return response()->json([
-                'status' => 'denied',
-                'message' => 'No active subscription'
-            ]);
-        }
-
-        $plan = $subscription->plan;
-
-        if (!$plan) {
-            return response()->json([
-                'status' => 'denied',
-                'message' => 'No plan found'
-            ]);
-        }
-
-        $feature = $plan->features()->where('name', $featureName)->first();
+        $feature = $user->checkFeature($featureName);
 
         if ($feature) {
             return response()->json([
